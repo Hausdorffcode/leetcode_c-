@@ -17,4 +17,23 @@
         }
         return -1;
     }
+	
+//time O(n), space O(1)
+    int canCompleteCircuit(vector<int>& gas, vector<int>& cost) {
+        int n = gas.size();
+        int startIndex = -1;
+        int total = 0;
+        for (int i = 0, sum = 0; i < n; i++) {
+            sum += gas[i] - cost[i];
+            total += gas[i]-cost[i];
+            if (sum < 0) {
+                sum = 0;
+                startIndex = i;
+            }
+        }
+        if (total >= 0) {   //只要total>=0必有解
+            return startIndex+1;
+        }
+        return -1;
+    }
 
