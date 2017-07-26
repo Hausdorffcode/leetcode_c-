@@ -44,5 +44,53 @@ private:
     }
 };
 
-
 //dp
+//time O(n*m), space O(n)
+class Solution {
+public:
+    int maximalRectangle(vector<vector<char>>& matrix) {
+        int m = matrix.size();
+        if (m <= 0) return 0;
+        int n = matrix[0].size();
+        if (n <= 0) return 0;
+        
+        vector<int> lt(n, 0);
+        vector<int> hi(n, n);
+        vector<int> height(n, 0);
+        int ret = 0;
+        
+        for (int i = 0; i < m; i++) {
+            int cur_left = 0, cur_right = n;
+            
+            for (int j = 0; j < n; j++) {
+                if (matrix[i][j] == '1') height[j]++;
+                else height[j] = 0;
+            }
+            
+            for (int j = 0; j < n; j++) {
+                if (matrix[i][j] == '1') {
+                    lt[j] = max(lt[j], cur_left);
+                }
+                else {
+                    lt[j] = 0;
+                    cur_left = j+1;
+                }
+            }
+            
+            for (int j = n-1; j >= 0; j--) {
+                if (matrix[i][j] == '1') {
+                    hi[j] = min(hi[j], cur_right);
+                }
+                else {
+                    hi[j] = n;
+                    cur_right = j;
+                }
+            }
+            
+            for (int j = 0; j < n; j++) {
+                ret = max(ret, (hi[j]-lt[j])*height[j]);
+            }
+        }
+        return ret;
+    }
+};
