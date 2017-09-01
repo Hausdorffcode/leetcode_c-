@@ -1,6 +1,7 @@
 //http://hihocoder.com/contest/mstest2017april/problem/3
 
 //贪心
+//特别注意数据范围
 #include<bits/stdc++.h>
 using namespace std;
 const int MAXN = 100010;
