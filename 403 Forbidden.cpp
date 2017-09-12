@@ -205,6 +205,7 @@ int main()
 
 //01字典树，建树的时候要记录输入的顺序且对于IP相同但前缀不同的CIDR只取最早出现的，每次查询沿着字典树一直走，
 //取路径上最早输入的匹配状态为答案，还要记录是否有前缀，插入时据此来决定插入的位数，比如0.0.0.0和0.0.0.0/0是不同的
+//大神的代码
 #include <cstdio>
 #include <cstring>
 #define ll long long
@@ -215,6 +216,7 @@ bool flag;
 
 struct Trie  
 {  
+	//tot充当全局指针，next儿子，end是否为alllow，id规则序号，从1开始，如果为0表示不是ip结尾
     int root, tot, next[MAX][2], end[MAX], id[MAX];  
     inline int Newnode()  
     {  
@@ -292,4 +294,121 @@ int main()
 		b = (a1 << 24) + (a2 << 16) + (a3 << 8) + a4;
 		printf("%s\n", tr.Search(b) ? "YES" : "NO");
 	}
+}
+
+//本弱鸡的代码
+#include<bits/stdc++.h>
+using namespace std;
+
+const int INF = 0x3f3f3f3f;
+const double eps = 1E-6;
+const int MAXN = 100010;
+
+struct node {
+    bool endPoint;  //是否时一个ip的终点
+    node* son[2];
+	//下面两个属性只有在endPoint为true时才有意义
+    int index;      //规则的序号，越小的排在前面
+    bool order;      //true为allow
+    node() {
+        this->endPoint = false;   //注意初始值
+        this->index = INF;     //注意初始值
+        this->order = false;
+        this->son[0] = NULL;
+        this->son[1] = NULL;
+    }
+};
+
+int N, M, x1, x2, x3, x4;
+char s[20];
+char c;
+
+void TrieInsert(node* root, int ip, int mask, bool order, int index) {
+    if (mask == 0 && root->index > index) {
+        root->endPoint = true;
+        root->index = index;
+        root->order = order;
+        return;
+    }
+    node* p = root;
+    for (int i = 31; i >= 32-mask; i--) {
+        if (ip & (1<<i)) {
+            if (p->son[1] != NULL) {
+                p = p->son[1];
+            }
+            else {
+                p->son[1] = new node();
+                p = p->son[1];
+            }
+        }
+        else {
+            if (p->son[0] != NULL) {
+                p = p->son[0];
+            }
+            else {
+                p->son[0] = new node();
+                p = p->son[0];
+            }
+        }
+        if (i == 32-mask && p->index > index) {
+            p->index = index;
+            p->order = order;
+            p->endPoint = true;
+        }
+    }
+}
+
+void TrieQuery(node* root, int ip) {
+    int index = INF;
+    bool ok = true;
+    if (root->endPoint) {
+        index = root->index;
+        ok = root->order;
+    }
+    node* p = root;
+    for (int i = 31; i >= 0; i--) {
+        if (ip & (1<<i)) {
+            p = p->son[1];
+        }
+        else {
+            p = p->son[0];
+        }
+        if (p != NULL) {
+            if (p->endPoint && p->index < index) {
+                ok = p->order;
+                index = p->index;
+            }
+        }
+        else {
+            break;
+        }
+    }
+    if (ok) printf("YES\n");
+    else printf("NO\n");
+}
+
+int main()
+{
+    freopen("test.txt", "r", stdin);
+    //freopen("output.txt", "w", stdout);
+    node* root = new node();
+    scanf("%d %d", &N, &M);
+    for (int i = 0; i < N; i++) {
+        scanf("%s %d.%d.%d.%d", s, &x1, &x2, &x3, &x4);
+        int ip = (x1<<24) + (x2<<16) + (x3<<8) + x4;
+        int mask = 32;
+        c = getchar();
+        if (c == '/') {
+            scanf("%d", &mask);
+        }
+        bool order = false;
+        if (strcmp(s, "allow") == 0) order = true;
+        TrieInsert(root, ip, mask, order, i);
+    }
+    for (int i = 0; i < M; i++) {
+        scanf("%d.%d.%d.%d", &x1, &x2, &x3, &x4);
+        int ip = (x1<<24) + (x2<<16) + (x3<<8) + x4;
+        TrieQuery(root, ip);
+    }
+    return 0;
 }

@@ -1,3 +1,4 @@
+//http://hihocoder.com/problemset/problem/1014?sid=1170750
 
 //神一样的代码
 #include<cstdio>
@@ -103,7 +104,7 @@ int main()
 			unsigned j = s[i] - 'a';
 			if (p->next[j])
 			{
-				++p->next[j]->cnt;
+				++p->next[j]->cnt;     //这代码。。。
 			}
 			else
 			{
@@ -138,4 +139,74 @@ int main()
 	}
 	return 0;
 }
+
+//本菜鸡的代码
+#include<bits/stdc++.h>
+using namespace std;
+
+const int INF = 0x3f3f3f3f;
+const double eps = 1E-6;
+const int MAXN = 100010;
+
+struct node {
+    int cnt;
+    node* son[26];
+    node() {
+        this->cnt = 0;
+        for (int i = 0; i < 26; i++) {
+            son[i] = NULL;
+        }
+    }
+};
+
+int n, m;
+
+void TrieInsert(node* root, char* s) {
+    int i = 0;
+    node *p = root;
+    while (s[i]) {
+        p->cnt++;        
+        if (p->son[s[i]-'a'] == NULL) {
+            p->son[s[i]-'a'] = new node();
+        }
+        p = p->son[s[i]-'a'];
+        i++;
+    }
+    p->cnt++;    //上面两位的似乎都没有在根结点计数
+}
+
+void TrieQuery(node* root, char*s) {
+    int i = 0;
+    node *p = root;
+    while (s[i]) {
+        if (p->son[s[i]-'a'] != NULL) {
+            p = p->son[s[i]-'a'];
+            i++;
+        }
+        else break;
+    }
+    if (!s[i]) printf("%d\n", p->cnt);
+    else printf("0\n");
+    return;
+}
+
+int main()
+{
+    freopen("test.txt", "r", stdin);
+    //freopen("output.txt", "w", stdout);
+    scanf("%d", &n);
+    node* root = new node();
+    char str[20];
+    for (int i = 0; i < n; i++) {
+        scanf("%s", str);
+        TrieInsert(root, str);
+    }
+    scanf("%d", &m);
+    for (int i = 0; i < m; i++) {
+        scanf("%s", str);
+        TrieQuery(root, str);
+    }
+    return 0;
+}
+
 
