@@ -1,6 +1,7 @@
 //http://hihocoder.com/problemset/problem/1175?sid=1176335
 
 //拓扑排序应用 O(N+M)
+//注意这里不能使用dfs，复杂度太高：每一个病毒都要一次dfs，所以dfs要调用病毒多次
 #include<bits/stdc++.h>
 using namespace std;
 
