@@ -191,3 +191,136 @@ int main() {
     return 0;
 }
 
+//终于ac了。。。
+#include<bits/stdc++.h>
+using namespace std;
+
+const int INF = 0x3f3f3f3f;
+const double eps = 1E-6;
+const int MAXN = 100010;
+
+const int magic = 142857;
+
+struct module{
+    int activeSign;
+    int sendSignCnt;
+    int sendSign[3];
+};
+
+int N, M;
+module modules[MAXN];
+int initSign[MAXN];
+vector<int> activeSignToModules[MAXN];
+int callcnt[MAXN];
+
+int head[MAXN];
+int p[MAXN];
+int nextModule[MAXN];
+int edgecnt;
+int deg[MAXN];
+
+void addEdge(int u, int v) {
+    ++edgecnt;
+    p[edgecnt] = v;
+    nextModule[edgecnt] = head[u];
+    head[u] = edgecnt;
+}
+
+void init() {
+    for (int i = 0; i < MAXN; i++) {
+        activeSignToModules[i].clear();
+    }
+    memset(callcnt, 0, sizeof(callcnt));
+    memset(head, 0, sizeof(head));
+    memset(p, 0, sizeof(p));
+    memset(nextModule, 0, sizeof(nextModule));
+    edgecnt = 0;
+    memset(deg, 0, sizeof(deg));
+}
+
+void dfs(int x) {
+    callcnt[x]++;
+    callcnt[x] %= magic;
+    for (int i = head[x]; i; i = nextModule[i]) {
+        int v = p[i];
+        dfs(v);
+    }
+}
+
+void toposort() {
+    queue<int> q;
+    for (int i = 0; i < M; i++) {
+        int sign = initSign[i];
+        for (int j = 0; j < activeSignToModules[sign].size(); j++) {
+            //q.push(activeSignToModules[sign][j]);
+            callcnt[activeSignToModules[sign][j]]++;
+        }
+    }
+    for (int i = 1; i <= N; i++) {
+        if (deg[i] == 0) {
+            q.push(i);
+        }
+    }
+    while (!q.empty()) {
+        int u = q.front(); q.pop();
+        for (int i = head[u]; i; i = nextModule[i]) {
+            int v = p[i];
+            deg[v] -= 1;
+            callcnt[v] += callcnt[u];
+            callcnt[v] %= magic;
+            if (deg[v] == 0) q.push(v);
+        }
+    }
+}
+
+int main() {
+    freopen("test.txt", "r", stdin);
+    int T;
+    scanf("%d", &T);
+    while (T--) {
+        init();
+        scanf("%d %d", &N, &M);
+        for (int i = 0; i < M; i++) {
+            scanf("%d", &initSign[i]);
+        }
+        for (int i = 1; i <= N; i++) {
+            int s, k, e;
+            scanf("%d %d", &s, &k);
+            modules[i].activeSign = s;
+            modules[i].sendSignCnt = k;
+            activeSignToModules[s].push_back(i);
+            for (int j = 0; j < k; j++) {
+                scanf("%d", &e);
+                modules[i].sendSign[j] = e;
+            }
+        }
+
+        //build picture
+        for (int i = 1; i <= N; i++) {
+            for (int j = 0; j < modules[i].sendSignCnt; j++) {
+                int sign = modules[i].sendSign[j];
+                for (int k = 0; k < activeSignToModules[sign].size(); k++) {
+                    int m = activeSignToModules[sign][k];
+                    addEdge(i, m);
+                    deg[m]++;
+                }
+            }
+        }
+
+        toposort();             //两种方式：拓扑排序，dfs
+//        for (int i = 0; i < M; i++) {
+//            int sign = initSign[i];
+//            for (int j = 0; j < activeSignToModules[sign].size(); j++) {
+//                dfs(activeSignToModules[sign][j]);
+//            }
+//        }
+
+        for (int i = 1; i <= N; i++) {
+            if (i == N) printf("%d\n", callcnt[i]);
+            else printf("%d ", callcnt[i]);
+        }
+    }
+    return 0;
+}
+
+
