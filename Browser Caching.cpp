@@ -2,7 +2,6 @@
 
 //使用hash（大伪）+双向链表
 #include<bits/stdc++.h>
-
 using namespace std;
 
 const int INF = 0x3f3f3f3f;
@@ -64,6 +63,49 @@ int main()
         }
     }
 
+    return 0;
+}
+
+//仅使用map，十分巧妙
+#include<bits/stdc++.h>
+using namespace std;
+
+const int INF = 0x3f3f3f3f;
+const double eps = 1E-6;
+const int MAXN = 20010;
+
+int N, M;
+map<string, int> timeStamp;
+int cnt = 0;
+string urls[MAXN];
+
+int main() {
+    //freopen("test.txt", "r", stdin);
+    //freopen("output.txt", "w", stdout);
+    cin >> N >> M;
+    string url;
+    int s = 1;
+    for (int i = 1; i <= N; i++) {
+        cin >> url;
+        urls[i] = url;
+        int index = 0;
+        if (timeStamp.count(url) > 0) {
+            index = timeStamp[url];
+        }
+        timeStamp[url] = i;
+        if (index >= s) {
+            printf("Cache\n");
+        }
+        else {
+            printf("Internet\n");
+            cnt++;
+            if (cnt > M) {
+                s++;
+                //cnt--;
+            }
+        }
+        while (timeStamp[urls[s]] != s) s++;   //这句要放在else外面，s位置代表了最早的访问记录，如果某次又访问了，则这条s将变成最新的记录，所以也要更新s
+    }
     return 0;
 }
 

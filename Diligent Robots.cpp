@@ -17,7 +17,7 @@ int main() {
     scanf("%lld %d", &N, &Q);
     long long ret = N;
     long long power = 1;
-    for (int k = 1; ; k++) {
+    for (int k = 1; ; k++) {   //从1开始特别重要
         power *= 2;
         long long cnt = (long long)ceil(N*1.0 / power) + k * Q;
         if (cnt < ret) {
